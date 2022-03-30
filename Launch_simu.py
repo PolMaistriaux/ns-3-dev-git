@@ -1,5 +1,6 @@
 import importlib
 import os
+import sys
 import re
 import subprocess
 import time
@@ -21,6 +22,7 @@ from tqdm import tqdm
 this_path  = os.path.realpath(__file__)
 ns3_dir    = os.path.dirname(this_path)
 result_dir = ns3_dir + "/Results_Simu"
+lock_file = os.sep.join([ns3_dir, ".lock-ns3_%s_build" % sys.platform])
 
 
 def launch_simu(script, params, result_Filename, result_Header = None ,runs=10, optimized= False,show_progess= True,get_AllRun=False,max_processes=None):
@@ -103,12 +105,13 @@ def configure_simu(script,optimized= False):
 
     # ns-3's build status output is used to get the executable path for the
     # specified script.
-    if optimized:
+    '''if optimized:
         build_status_path = os.path.join(ns3_dir,
                                             'build/optimized/build-status.py')
     else:
         build_status_path = os.path.join(ns3_dir,
-                                            'build/debug/build-status.py')
+                                            'build/debug/build-status.py')'''
+    build_status_path = lock_file
 
     # By importing the file, we can naturally get the dictionary
     try:  # This only works on Python >= 3.5
@@ -120,6 +123,7 @@ def configure_simu(script,optimized= False):
         import imp
         build_status = imp.load_source('build_status', build_status_path)
     
+    #print(build_status.ns3_runnable_programs)
     # Search is simple: we look for the script name in the program field.
     # Note that this could yield multiple matches, in case the script name
     # string is contained in another script's name.
