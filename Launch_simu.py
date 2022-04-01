@@ -5,7 +5,7 @@ import re
 import subprocess
 import time
 import uuid
-import sem.utils
+#import sem.utils
 import itertools
 import csv
 import random
@@ -28,7 +28,7 @@ lock_file = os.sep.join([ns3_dir, ".lock-ns3_%s_build" % sys.platform])
 def launch_simu(script, params, result_Filename, result_Header = None ,runs=10, optimized= False,show_progess= True,get_AllRun=False,max_processes=None):
 
     script_executable, environment = configure_simu(script= script ,optimized= optimized)
-    print("The script for the simulation is : " + str(script_executable))
+    print("The script for the simulation is : " + str(script_executable.replace(str(ns3_dir),"")))
 
     params['RngRun'] =np.arange(runs)
     params_Header = list(params.keys())
@@ -43,9 +43,12 @@ def launch_simu(script, params, result_Filename, result_Header = None ,runs=10, 
     parameter_Combinations = [(i,)+p for i,p in enumerate(Combinations)]
     random.shuffle(parameter_Combinations)
     
+    print("Number of CPU on this machine   : %i" %(os.cpu_count ()) )
+    print("Number of CPU that will be used : %i" %(max_processes if max_processes != None else os.cpu_count ()) )
     with Pool(processes=max_processes) as pool:
         errors = 0
         pool_OneSimu = partial(run_OneRun,script_executable = script_executable, environment = environment, parameter_Name = params_Header , len_Results = N_results,runs=runs)
+        start = time.time()
         if show_progess :
             outputs = tqdm(pool.imap_unordered(pool_OneSimu, parameter_Combinations),
                             total=len(parameter_Combinations), 
@@ -80,6 +83,7 @@ def launch_simu(script, params, result_Filename, result_Header = None ,runs=10, 
             df = pd.DataFrame(Result_buffer, columns =result_Header)
 
         df.to_csv(result_dir+"/"+result_Filename+'.csv', index = False)   
+        print("Execution time of the simulations is %.2f [s]" %(time.time()-start))
 
 
     ####################################################
@@ -154,7 +158,7 @@ def configure_simu(script,optimized= False):
     ####################################################
     # Run multiple simulations given a parameter list  #
     ####################################################
-def run_simu(script_executable, environment,Result_buffer, writer, parameter_List, parameter_Name,len_Results,runs=10):
+'''def run_simu(script_executable, environment,Result_buffer, writer, parameter_List, parameter_Name,len_Results,runs=10):
     errors = 0
     sim_Number,  *params = parameter
     for parameter in tqdm(parameter_List, total=len(parameter_List), unit='sim.', desc='Running sim.') :
@@ -184,7 +188,7 @@ def run_simu(script_executable, environment,Result_buffer, writer, parameter_Lis
         Result_buffer[sim_Number,:] = results_ToWrite 
         #print("Run time : " + str(round(end-start,2)))
 
-    return Result_buffer, errors
+    return Result_buffer, errors'''
 
     ####################################################
     # Run one simulation given a parameter combination #
