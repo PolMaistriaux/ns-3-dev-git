@@ -419,6 +419,53 @@ private:
   double m_z;  //!< z coordinate of the disc
 };
 
+
+
+
+
+class SensingGridPositionAllocator : public PositionAllocator
+{
+public:
+  /**
+   * Register this type with the TypeId system.
+   * \return the object TypeId
+   */
+  static TypeId GetTypeId (void);
+
+  SensingGridPositionAllocator ();
+  /**
+   * \param xRadius is the sensing radius of the node.
+   */
+  void SetRadius (double xRadius);
+  /**
+   * \param sensing_radius is the sensing radius of the node.
+   */
+  void SetSensingRadius (double xSensing_radius);
+  
+  /**
+   * \param z   the Z coordinate of all the positions allocated
+   */
+  void SetZ (double z);
+  int  GetN (void) const;
+  void Initialize (void) ;
+  bool HasNext     (void) const;
+
+  virtual Vector GetNext (void) const;
+  virtual int64_t AssignStreams (int64_t stream);
+
+private:
+  mutable int    n;
+  mutable int    rowType;
+  mutable double current_x;
+  mutable double current_y;
+  double radius;
+  double sensing_radius;
+  mutable double node_spacing_x;
+  mutable double node_spacing_y;
+  mutable bool   hasNext; 
+  double m_z; //!< z coordinate of all the positions generated
+};
+
 } // namespace ns3
 
 #endif /* RANDOM_POSITION_H */

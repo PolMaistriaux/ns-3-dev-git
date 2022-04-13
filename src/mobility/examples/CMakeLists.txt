@@ -3,6 +3,7 @@ set(base_examples
     main-random-topology
     main-random-walk
     ns2-mobility-trace
+    main-sensing-grid-topology
 )
 foreach(
   example
