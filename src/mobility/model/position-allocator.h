@@ -454,15 +454,15 @@ public:
   virtual int64_t AssignStreams (int64_t stream);
 
 private:
-  mutable int    n;
-  mutable int    rowType;
   mutable double current_x;
   mutable double current_y;
+  mutable int    n;
+  mutable int    rowType;
+  mutable bool   hasNext; 
   double radius;
   double sensing_radius;
-  mutable double node_spacing_x;
-  mutable double node_spacing_y;
-  mutable bool   hasNext; 
+  double node_spacing_x;
+  double node_spacing_y;
   double m_z; //!< z coordinate of all the positions generated
 };
 
