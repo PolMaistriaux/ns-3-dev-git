@@ -173,7 +173,7 @@ RectangleFieldGatewayPositionAllocator::GetTypeId (void)
 }
 
 RectangleFieldGatewayPositionAllocator::RectangleFieldGatewayPositionAllocator ()
-  : current_x (-1), current_y(-1), n(0), rowType(0), hasNext(true), size_x(100), size_y(100),  m_range(1000), m_z(5)
+  : current_x (-1), current_y(-1), n(0), rowType(0), hasNext(true), size_x(100), size_y(100),  m_range(1000), m_z(15)
 {
   ComputePositions();
 }
@@ -193,7 +193,7 @@ RectangleFieldGatewayPositionAllocator::ComputePositions (void)
   node_spacing_x = m_range*std::sqrt(3);
   node_spacing_y = m_range*3/2;
   current_x = rangeSqrt2;
-  current_y = rangeSqrt2;
+  current_y = m_range/2;//rangeSqrt2;
   hasNext   =  true;
   while(hasNext){  
     //Checking if the point is inside the coverage circle
@@ -205,7 +205,10 @@ RectangleFieldGatewayPositionAllocator::ComputePositions (void)
     else{
       rowType = (rowType+1)%2 ; 
       current_y = current_y + node_spacing_y;
-      current_x = -rangeMinusSqrt2 + node_spacing_x*rowType/2;
+      if(rowType == 1)
+        current_x = -rangeMinusSqrt2;
+      else
+        current_x = rangeSqrt2;
     }
 
     //Checking if the point is still inside the possible square
