@@ -476,50 +476,6 @@ private:
   mutable std::vector<Vector>::const_iterator m_next;
 };
 
-
-class SensingGridPositionAllocator2 : public PositionAllocator
-{
-public:
-  /**
-   * Register this type with the TypeId system.
-   * \return the object TypeId
-   */
-  static TypeId GetTypeId (void);
-
-  SensingGridPositionAllocator2 ();
-  /**
-   * \param xRadius is the sensing radius of the node.
-   */
-  void SetRadius (double xRadius);
-  /**
-   * \param sensing_radius is the sensing radius of the node.
-   */
-  void SetSensingRadius (double xSensing_radius);
-  
-  /**
-   * \param z   the Z coordinate of all the positions allocated
-   */
-  void SetZ (double z);
-  int  GetN (void) const;
-  void Initialize (void) ;
-  bool HasNext     (void) const;
-
-  virtual Vector GetNext (void) const;
-  virtual int64_t AssignStreams (int64_t stream);
-
-private:
-  mutable double current_x;
-  mutable double current_y;
-  mutable int    n;
-  mutable int    rowType;
-  mutable bool   hasNext; 
-  double radius;
-  double sensing_radius;
-  double node_spacing_x;
-  double node_spacing_y;
-  double m_z; //!< z coordinate of all the positions generated
-};
-
 } // namespace ns3
 
 #endif /* RANDOM_POSITION_H */

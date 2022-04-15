@@ -13,6 +13,7 @@ build_lib(
     model/geographic-positions.cc
     model/hierarchical-mobility-model.cc
     model/mobility-model.cc
+    model/sensing-field-position-allocator.cc
     model/position-allocator.cc
     model/random-direction-2d-mobility-model.cc
     model/random-walk-2d-mobility-model.cc
@@ -35,6 +36,7 @@ build_lib(
     model/hierarchical-mobility-model.h
     model/mobility-model.h
     model/position-allocator.h
+    model/sensing-field-position-allocator.h
     model/random-direction-2d-mobility-model.h
     model/random-walk-2d-mobility-model.h
     model/random-waypoint-mobility-model.h
