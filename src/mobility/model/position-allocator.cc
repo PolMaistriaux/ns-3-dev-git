@@ -645,8 +645,67 @@ SensingGridPositionAllocator::GetTypeId (void)
 }
 
 SensingGridPositionAllocator::SensingGridPositionAllocator ()
-  : current_x (-1), current_y(-1), n(0), rowType(0), hasNext(true)
-{}
+  : current_x (-1), current_y(-1), n(0), rowType(0), hasNext(true), radius(1000),sensing_radius(100),m_z(5)
+{
+  node_spacing_x = sensing_radius*std::sqrt(3);
+  node_spacing_y = sensing_radius*3/2;
+  current_x = -radius;
+  current_y = -radius;
+  hasNext   =  true;
+  while(hasNext){  
+    //Checking if the point is inside the coverage circle
+    if((current_y*current_y + current_x*current_x) < (radius*radius)){
+      m_positions.push_back (Vector(current_x,current_y,m_z));
+    }
+
+    // Updating the position of the next point
+    if ((current_x+node_spacing_x) > 2*radius ){
+      rowType = (rowType+1)%2 ; 
+      current_y = current_y + node_spacing_y;
+      current_x = -radius + node_spacing_x*rowType/2;
+    } else{
+      current_x = current_x + node_spacing_x;
+    }
+
+    //Checking if the point is still inside the possible square
+    if  (current_y > radius){
+      hasNext = false;
+    }  
+  } 
+  m_next = m_positions.begin();
+}
+
+SensingGridPositionAllocator::SensingGridPositionAllocator (double xRadius,double xSensingRadius,double z)
+  : current_x (-1), current_y(-1), n(0), rowType(0), hasNext(true), radius(xRadius),sensing_radius(xSensingRadius), m_z(z)
+{
+  node_spacing_x = sensing_radius*std::sqrt(3);
+  node_spacing_y = sensing_radius*3/2;
+  current_x = -radius;
+  current_y = -radius;
+  hasNext   =  true;
+  while(hasNext){  
+    //Checking if the point is inside the coverage circle
+    if((current_y*current_y + current_x*current_x) < (radius*radius)){
+      n ++;
+      m_positions.push_back (Vector(current_x,current_y,m_z));
+    }
+
+    // Updating the position of the next point
+    if ((current_x+node_spacing_x) > 2*radius ){
+      rowType = (rowType+1)%2 ; 
+      current_y = current_y + node_spacing_y;
+      current_x = -radius + node_spacing_x*rowType/2;
+    } else{
+      current_x = current_x + node_spacing_x;
+    }
+
+    //Checking if the point is still inside the possible square
+    if  (current_y > radius){
+      hasNext = false;
+    }  
+  } 
+  m_next = m_positions.begin();
+}
 
 void
 SensingGridPositionAllocator::SetRadius (double xRadius)
@@ -661,7 +720,82 @@ SensingGridPositionAllocator::SetSensingRadius (double xSensing_radius)
 }
 
 void
-SensingGridPositionAllocator::Initialize (void) 
+SensingGridPositionAllocator::SetZ (double z)
+{
+  m_z = z;
+}
+
+Vector
+SensingGridPositionAllocator::GetNext (void) const
+{
+  Vector position = *m_next;
+  m_next++;
+  return position;
+}
+
+int 
+SensingGridPositionAllocator::GetN (void) const
+{
+  return n;
+}
+
+int64_t
+SensingGridPositionAllocator::AssignStreams (int64_t stream)
+{
+  return 0;
+}
+
+
+
+
+
+
+
+
+NS_OBJECT_ENSURE_REGISTERED (SensingGridPositionAllocator2);
+
+TypeId
+SensingGridPositionAllocator2::GetTypeId (void)
+{
+  static TypeId tid = TypeId ("ns3::SensingGridPositionAllocator2")
+    .SetParent<PositionAllocator> ()
+    .SetGroupName ("Mobility")
+    .AddConstructor<SensingGridPositionAllocator2> ()
+    .AddAttribute ("Radius", "Radius of the circle to place the sensors",
+                   DoubleValue (1.0),
+                   MakeDoubleAccessor (&SensingGridPositionAllocator2::radius),
+                   MakeDoubleChecker<double> ())
+    .AddAttribute ("SensingRadius", "Sensing radius of the node",
+                   DoubleValue (1.0),
+                   MakeDoubleAccessor (&SensingGridPositionAllocator2::sensing_radius),
+                   MakeDoubleChecker<double> ())
+    .AddAttribute ("Z",
+                   "The z coordinate of all the positions allocated.",
+                   DoubleValue (0.0),
+                   MakeDoubleAccessor (&SensingGridPositionAllocator2::m_z),
+                   MakeDoubleChecker<double> ())
+    ;
+  return tid;
+}
+
+SensingGridPositionAllocator2::SensingGridPositionAllocator2 ()
+  : current_x (-1), current_y(-1), n(0), rowType(0), hasNext(true)
+{}
+
+void
+SensingGridPositionAllocator2::SetRadius (double xRadius)
+{
+  radius = xRadius;
+}
+
+void
+SensingGridPositionAllocator2::SetSensingRadius (double xSensing_radius)
+{
+  sensing_radius = xSensing_radius;
+}
+
+void
+SensingGridPositionAllocator2::Initialize (void) 
 {
   node_spacing_x = sensing_radius*std::sqrt(3);
   node_spacing_y = sensing_radius*3/2;
@@ -693,20 +827,19 @@ SensingGridPositionAllocator::Initialize (void)
 }
 
 void
-SensingGridPositionAllocator::SetZ (double z)
+SensingGridPositionAllocator2::SetZ (double z)
 {
   m_z = z;
 }
 
 bool
-SensingGridPositionAllocator::HasNext (void) const
+SensingGridPositionAllocator2::HasNext (void) const
 {
   return hasNext;
 }
 
-// A tester tout ca
 Vector
-SensingGridPositionAllocator::GetNext (void) const
+SensingGridPositionAllocator2::GetNext (void) const
 {
   double x= current_x;
   double y= current_y;
@@ -737,13 +870,13 @@ SensingGridPositionAllocator::GetNext (void) const
 }
 
 int 
-SensingGridPositionAllocator::GetN (void) const
+SensingGridPositionAllocator2::GetN (void) const
 {
   return n;
 }
 
 int64_t
-SensingGridPositionAllocator::AssignStreams (int64_t stream)
+SensingGridPositionAllocator2::AssignStreams (int64_t stream)
 {
   return 0;
 }
